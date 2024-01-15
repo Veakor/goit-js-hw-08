@@ -65,6 +65,7 @@ const images = [
   ];
 
   const gallery = document.querySelector('.gallery');
+let activeLightbox = null;
 
 function createGalleryItem({ preview, original, description }) {
   const galleryItem = document.createElement('li');
@@ -72,15 +73,13 @@ function createGalleryItem({ preview, original, description }) {
 
   const link = document.createElement('a');
   link.classList.add('gallery-link');
-  link.href = original;
+  link.href="javascript:void(0);"
 
   const image = document.createElement('img');
   image.classList.add('gallery-image');
   image.src = preview;
   image.alt = description;
   image.dataset.source = original;
-
-  image.addEventListener('click', () => openModal(original, description));
 
   galleryItem.appendChild(image);
 
@@ -93,7 +92,30 @@ function openModal(source, description) {
     `);
 
   instance.show();
+  activeLightbox = instance;
+
+
+  document.addEventListener('keydown', handleKeyPress);
 }
+
+function handleKeyPress(event) {
+  if (event.key === 'Escape') {
+    activeLightbox.close();
+    activeLightbox = null;
+
+  
+    document.removeEventListener('keydown', handleKeyPress);
+  }
+}
+
+
+gallery.addEventListener('click', (event) => {
+  if (event.target.classList.contains('gallery-image')){
+    const source = event.target.dataset.source;
+    const description = event.target.alt;
+    openModal(source, description);
+  }
+});
 
 images.forEach((image) => {
   const galleryItem = createGalleryItem(image);
